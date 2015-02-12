@@ -191,10 +191,11 @@ public class PentahoConnectionConfigurationComposite extends Composite {
     if ( onTextChangedCallback != null ) {
       textVarInput.addKeyListener( new KeyListener() {
         @Override public void keyPressed( KeyEvent keyEvent ) {
-          onTextChangedCallback.invoke( textVarInput.getText() );
         }
 
-        @Override public void keyReleased( KeyEvent keyEvent ) { }
+        @Override public void keyReleased( KeyEvent keyEvent ) {
+          onTextChangedCallback.invoke( textVarInput.getText() );
+        }
       } );
     }
     return textVarInput;
