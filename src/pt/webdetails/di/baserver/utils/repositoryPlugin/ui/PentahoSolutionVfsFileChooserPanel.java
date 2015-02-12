@@ -1,5 +1,5 @@
 /*
- *  Copyright 2002 - 2014 Webdetails, a Pentaho company.  All rights reserved.
+ *  Copyright 2002 - 2015 Webdetails, a Pentaho company.  All rights reserved.
  *
  *  This software was developed by Webdetails and is provided under the terms
  *  of the Mozilla Public License, Version 2.0, or any later version. You may not use
@@ -20,7 +20,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Widget;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.RowMetaAndData;
 import org.pentaho.di.core.exception.KettleException;
@@ -29,15 +28,13 @@ import org.pentaho.di.core.util.EnvUtil;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.ui.core.widget.TextVar;
+import org.pentaho.di.ui.core.widget.ComboVar;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.vfs.ui.CustomVfsUiPanel;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.Constants;
 import pt.webdetails.di.baserver.utils.repositoryPlugin.RepositoryPlugin;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 
 public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
@@ -45,12 +42,61 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
   // for message resolution
   private static Class<?> PKG = RepositoryPlugin.class;
 
+  // region Properties
+
+  public ComboVar getConnectionsDropDown() {
+    return this.connectionsDropDown;
+  }
+  private ComboVar connectionsDropDown;
+
+  public Button getConnectButton() {
+    return this.connectButton;
+  }
+  private Button connectButton;
+
+  public Button getEditConnectionButton() {
+    return this.editConnectionButton;
+  }
+  private Button editConnectionButton;
+
+  public Button getDeleteConnectionButton() {
+    return this.deleteConnectionButton;
+  }
+  private Button deleteConnectionButton;
+
+  public Button getNewConnectionButton() {
+    return this.newConnectionButton;
+  }
+  private Button newConnectionButton;
+
+
+  private Constants getConstants() {
+    return Constants.getInstance();
+  }
+
+  private Spoon getSpoon() {
+    return Spoon.getInstance();
+  }
+
+  public VariableSpace getVariableSpace() {
+    return this.variableSpace;
+  }
+  public PentahoSolutionVfsFileChooserPanel setVariableSpace( VariableSpace variableSpace ) {
+    this.variableSpace = variableSpace;
+    return this;
+  }
+  private VariableSpace variableSpace;
+
+  // endregion
+
+
+  // region Constructors
   public PentahoSolutionVfsFileChooserPanel( VfsFileChooserDialog vfsFileChooserDialog ) {
-    super( "" , "", vfsFileChooserDialog, SWT.NONE );
+    super( "", "", vfsFileChooserDialog, SWT.NONE );
 
     this.setVfsScheme( this.getConstants().getVfsScheme() );
     String vfsSchemeDisplayText = BaseMessages.getString( PKG,
-        "PentahoSolutionVfsFileChooserPanel.VfsDropdownOption.Text" );
+      "PentahoSolutionVfsFileChooserPanel.VfsDropdownOption.Text" );
     this.setVfsSchemeDisplayText( vfsSchemeDisplayText );
 
     Spoon spoon = this.getSpoon();
@@ -65,65 +111,15 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     this.createPanel();
 
   }
-
-  // region Properties
-  public VariableSpace getVariableSpace() {
-    return this.variableSpace;
-  }
-  public PentahoSolutionVfsFileChooserPanel setVariableSpace( VariableSpace variableSpace ) {
-    this.variableSpace = variableSpace;
-    return this;
-  }
-  private VariableSpace variableSpace;
-
-  public Button getNewConnectionButton() {
-    return this.newConnectionButton;
-  }
-  private Button newConnectionButton;
-
-  private Button connectionButton;
-  public Button getConnectionButton() {
-    return this.connectionButton;
-  }
-
-  protected TextVar serverUrl;
-  public URL getServerUrl() throws MalformedURLException {
-    String resolvedUrl = this.resolveVariable( this.serverUrl.getText() );
-    URL url = new URL( resolvedUrl );
-    return url;
-  }
-
-  protected TextVar userName;
-  public String getUserName() {
-    String resolvedUserName = this.resolveVariable( this.userName.getText() );
-    return resolvedUserName;
-  }
-
-  protected TextVar password;
-  public String getPassword() {
-    String resolvedPassword = this.resolveVariable( this.password.getText() );
-    return resolvedPassword;
-  }
-
-  private Constants getConstants() {
-    return Constants.getInstance();
-  }
-
-
-
-
-  private Spoon getSpoon() {
-    return Spoon.getInstance();
-  }
   // endregion
+
 
   // region Methods
 
-
-
-
-  /***
+  // region spoon variables
+  /**
    * Gets the Spoon environment variables space
+   *
    * @param spoon
    * @return
    */
@@ -147,8 +143,9 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     return variables;
   }
 
-  /***
+  /**
    * Gets the kettle properties file variables space
+   *
    * @return
    */
   private VariableSpace getKettlePropertiesVariables() {
@@ -168,8 +165,9 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     return variables;
   }
 
-  /***
+  /**
    * Resolves a string with variables in the panel variable space
+   *
    * @param variable
    * @return The resolved string
    */
@@ -177,90 +175,66 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     return this.getVariableSpace().environmentSubstitute( variable );
   }
 
-  public void activate( ) {
-    VariableSpace variableSpace = this.getVariableSpace();
-    this.serverUrl.setVariables( variableSpace );
-    this.userName.setVariables( variableSpace );
-    this.password.setVariables( variableSpace );
+  public void activate() {
+    //VariableSpace variableSpace = this.getVariableSpace();
+    //this.serverUrl.setVariables( variableSpace );
+    //this.userName.setVariables( variableSpace );
+    //this.password.setVariables( variableSpace );
   }
+  // endregion
 
-  // region create View
   private void createPanel() {
-    Composite group = this.buildGroup( this, 2 );
+    Composite group = this.buildGroup( this, 6 );
 
-    this.serverUrl = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.ServerUrl.Label" );
-    this.serverUrl.setText( this.getConstants().getDefaultServerUrl() );
-
-    this.userName = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.UserName.Label" );
-    this.userName.setText( this.getConstants().getDefaultUser() );
-
-    this.password = this.buildTextInput( group, "PentahoSolutionVfsFileChooserPanel.Password.Label", true );
-    this.password.setText( this.getConstants().getDefaultPassword() );
-
-    this.buildEmptyWidget( group );
-    this.connectionButton = this.buildButton( group, "PentahoSolutionVfsFileChooserPanel.ConnectButton.Text" );
-
+    this.connectionsDropDown = this.buildComboVar( group, "PentahoSolutionVfsFileChooserPanel.ConnectionsLabel.Label" );
+    this.connectButton = this.buildButton( group, "PentahoSolutionVfsFileChooserPanel.ConnectButton.Text" );
+    this.editConnectionButton =
+      this.buildButton( group, "PentahoSolutionVfsFileChooserPanel.EditConnectionButton.Text" );
+    this.deleteConnectionButton =
+      this.buildButton( group, "PentahoSolutionVfsFileChooserPanel.DeleteConnectionButton.Text" );
     this.newConnectionButton = this.buildButton( group, "PentahoSolutionVfsFileChooserPanel.NewConnectionButton.Text" );
   }
 
   private Composite buildGroup( Composite parent, int numberOfColumns ) {
-    // The Connection group
-    Group connectionGroup = new Group( parent, SWT.SHADOW_ETCHED_IN );
+
+    // create group
+    Group group = new Group( parent, SWT.SHADOW_ETCHED_IN );
     String connectionGroupLabel = BaseMessages.getString( PKG,
-        "PentahoSolutionVfsFileChooserPanel.ConnectionGroup.Label" );
-    connectionGroup.setText( connectionGroupLabel );
+      "PentahoSolutionVfsFileChooserPanel.ConnectionGroup.Label" );
+    group.setText( connectionGroupLabel );
 
-    GridLayout connectionGroupLayout = new GridLayout();
-    connectionGroupLayout.marginWidth = 5;
-    connectionGroupLayout.marginHeight = 5;
-    connectionGroupLayout.verticalSpacing = 5;
-    connectionGroupLayout.horizontalSpacing = 5;
+    GridLayout groupLayout = new GridLayout();
+    groupLayout.marginWidth = 5;
+    groupLayout.marginHeight = 5;
+    groupLayout.verticalSpacing = 5;
+    groupLayout.horizontalSpacing = 5;
+    group.setLayout( groupLayout );
 
-    GridData gData = new GridData( SWT.FILL, SWT.FILL, true, false );
-    connectionGroup.setLayoutData( gData );
-    connectionGroup.setLayout( connectionGroupLayout );
+    GridData groupData = new GridData( SWT.FILL, SWT.FILL, true, false );
+    group.setLayoutData( groupData );
 
     // The composite we need in the group
-    Composite fieldPanel = new Composite( connectionGroup, SWT.NONE );
-    GridData gridData = new GridData( SWT.FILL, SWT.FILL, true, false );
-    fieldPanel.setLayoutData( gridData );
-    fieldPanel.setLayout( new GridLayout( numberOfColumns, false ) );
+    Composite fieldPanel = new Composite( group, SWT.NONE );
+    GridLayout panelLayout = new GridLayout( numberOfColumns, false );
+    fieldPanel.setLayout( panelLayout );
 
     return fieldPanel;
   }
 
-  private Widget buildEmptyWidget( Composite parent ) {
-    Label label = new Label( parent, SWT.NONE );
-    GridData labelGridData = new GridData();
-    label.setLayoutData( labelGridData );
-    return label;
-  }
-
-  private TextVar buildTextInput( Composite parent, String i18nLabelKey, boolean isPassword ) {
+  private ComboVar buildComboVar( Composite parent, String i18nLabelKey ) {
     Label label = new Label( parent, SWT.RIGHT );
     String labelText = BaseMessages.getString( PKG, i18nLabelKey );
     label.setText( labelText );
-
     GridData labelGridData = new GridData();
     labelGridData.widthHint = 100;
     label.setLayoutData( labelGridData );
 
-    int flags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
-    if ( isPassword ) {
-      flags = flags | SWT.PASSWORD;
-    }
-    TextVar textVarInput = new TextVar( this.getVariableSpace(), parent, flags );
-    GridData inputGridData = new GridData();
-    inputGridData.widthHint = 250;
-    inputGridData.grabExcessHorizontalSpace = true;
-    inputGridData.horizontalAlignment = SWT.FILL;
-    textVarInput.setLayoutData( inputGridData );
+    ComboVar comboVar = new ComboVar( this.getVariableSpace(), parent, SWT.BORDER );
+    GridData comboGridData = new GridData( SWT.RIGHT, SWT.CENTER, true, true, 1, 1 );
+    comboGridData.widthHint = 200;
+    comboVar.setLayoutData( comboGridData );
 
-    return textVarInput;
-  }
-
-  private TextVar buildTextInput( Composite parent, String i18nLabelKey ) {
-    return this.buildTextInput( parent, i18nLabelKey, false );
+    return comboVar;
   }
 
   private Button buildButton( Composite parent, String i18nTextKey ) {
@@ -276,9 +250,5 @@ public class PentahoSolutionVfsFileChooserPanel extends CustomVfsUiPanel {
     return button;
   }
 
-
   // endregion
-  // endregion
-
-
 }
